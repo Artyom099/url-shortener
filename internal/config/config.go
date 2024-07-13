@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	// todo - погуглить про struct tag в go
-	Env         string `yaml:"env" env-default:"local" env-required:"true"`
+	Env         string `yaml:"env" env-default:"local"`
 	StoragePath string `yaml:"storage_path" env-required:"true"`
 	HTTPServer  `yaml:"http_server" env-required:"true"`
 }
@@ -21,7 +21,7 @@ type HTTPServer struct {
 }
 
 func MustLoad() *Config {
-	configPath := os.Getenv("CONFIG_PATH")
+	configPath := os.Getenv(" ")
 	if configPath == "" {
 		log.Fatal("CONFIG_PATH is not set")
 	}
