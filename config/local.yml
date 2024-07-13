@@ -1,0 +1,8 @@
+env: "loocal"
+storage_path: ".storage/storage.db"
+http_server:
+  address: "localhost:8082"
+  # время на чтение запроса и такое же время на отправку ответа, время на обработку не ограничено
+  timeout: 4s
+  # время жизни соединения с клиентом
+  idle_timeout: 60s
