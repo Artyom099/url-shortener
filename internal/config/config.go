@@ -21,8 +21,10 @@ type HTTPServer struct {
 }
 
 func MustLoad() *Config {
-	//configPath := os.Getenv("CONFIG_PATH")
-	configPath := "./../../config/local.yml"
+	// Получаем путь до конфиг-файла из env-переменной CONFIG_PATH
+	configPath := os.Getenv("CONFIG_PATH")
+	//configPath := "./../../config/local.yml"
+	//configPath := "./config/local.yml"
 	if configPath == "" {
 		log.Fatal("CONFIG_PATH is not set")
 	}
@@ -34,7 +36,9 @@ func MustLoad() *Config {
 
 	var cfg Config
 
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
+	// Читаем конфиг-файл и заполняем нашу структуру
+	err := cleanenv.ReadConfig(configPath, &cfg)
+	if err != nil {
 		log.Fatalf("cannot read config: %s", err)
 	}
 

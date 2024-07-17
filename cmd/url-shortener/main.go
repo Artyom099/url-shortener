@@ -12,7 +12,6 @@ import (
 func main() {
 	// todo: init config: cleanenv
 	cfg := config.MustLoad()
-
 	fmt.Println(cfg)
 
 	// todo: init logger: slog
