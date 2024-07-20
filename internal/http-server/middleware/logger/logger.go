@@ -22,10 +22,13 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				slog.String("user_agent", r.UserAgent()),
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
+			// создаем обертку вокруг http.ResponseWriter для получения сведений об ответе
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
-			// эта часть будет выполнена после окончательной обработки запроса
+			// Момент получения запроса, чтобы вычислить время обработки
 			timeNow := time.Now()
+
+			// эта часть будет выполнена после окончательной обработки запроса
 			defer func() {
 				entry.Info("request completed",
 					slog.Int("status", ww.Status()),
@@ -34,10 +37,11 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				)
 			}()
 
-			// когда middleware отработал, мы передаем данные далее в основную логику
+			// когда middleware отработал, передаем данные далее в основную логику
 			next.ServeHTTP(ww, r)
 		}
 
+		// Возвращаем созданный выше обработчик, приведя его к типу http.HandlerFunc
 		return http.HandlerFunc(fn)
 	}
 }
