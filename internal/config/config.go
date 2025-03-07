@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+/*
+структуры, в которые будем анмаршалить конфигурационный файл
+*/
 type Config struct {
 	// todo - погуглить про struct tag в go
 	Env         string `yaml:"env" env-default:"local"`
@@ -15,7 +18,7 @@ type Config struct {
 }
 
 type HTTPServer struct {
-	Addr        string        `yaml:"address" env-default:"localhost:8080" env-required:"true"`
+	Address     string        `yaml:"address" env-default:"localhost:8080" env-required:"true"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 	User        string        `yaml:"user" env-required:"true"`
@@ -24,6 +27,7 @@ type HTTPServer struct {
 
 func MustLoad() *Config {
 	// Получаем путь до конфиг-файла из env-переменной CONFIG_PATH
+	// CONFIG_PATH=./config/local.yaml ./your-app
 	configPath := os.Getenv("CONFIG_PATH")
 	//configPath := "./../../config/local.yml"
 	//configPath := "./config/local.yml"
@@ -31,9 +35,9 @@ func MustLoad() *Config {
 		log.Fatal("CONFIG_PATH is not set")
 	}
 
-	// check if file exist
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file does not exist: %s", configPath)
+	//  Проверяем существование конфиг-файла
+	if _, err := os.Stat(configPath); err != nil {
+		log.Fatalf("error opening config file: %s", err)
 	}
 
 	var cfg Config
@@ -41,7 +45,7 @@ func MustLoad() *Config {
 	// Читаем конфиг-файл и заполняем нашу структуру
 	err := cleanenv.ReadConfig(configPath, &cfg)
 	if err != nil {
-		log.Fatalf("cannot read config: %s", err)
+		log.Fatalf("cannot reading config: %s", err)
 	}
 
 	return &cfg

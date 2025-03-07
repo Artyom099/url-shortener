@@ -9,12 +9,15 @@ import (
 
 func New(log *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		log = log.With(slog.String("component", "middleware/logger"))
+		log = log.With(
+			slog.String("component", "middleware/logger"),
+		)
 
 		log.Info("logger middleware enabled")
 
+		// код самого обработчика
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			// эта часть выполняется до обработки запроса
+			// собираем исходную информацию о запросе
 			entry := log.With(
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.Path),
@@ -22,22 +25,25 @@ func New(log *slog.Logger) func(next http.Handler) http.Handler {
 				slog.String("user_agent", r.UserAgent()),
 				slog.String("request_id", middleware.GetReqID(r.Context())),
 			)
-			// создаем обертку вокруг http.ResponseWriter для получения сведений об ответе
+
+			// создаем обертку вокруг `http.ResponseWriter`
+			// для получения сведений об ответе
 			ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
 			// Момент получения запроса, чтобы вычислить время обработки
-			timeNow := time.Now()
+			t1 := time.Now()
 
-			// эта часть будет выполнена после окончательной обработки запроса
+			// Запись отправится в лог в defer
+			// в этот момент запрос уже будет обработан
 			defer func() {
 				entry.Info("request completed",
 					slog.Int("status", ww.Status()),
 					slog.Int("bytes", ww.BytesWritten()),
-					slog.String("duration", time.Since(timeNow).String()),
+					slog.String("duration", time.Since(t1).String()),
 				)
 			}()
 
-			// когда middleware отработал, передаем данные далее в основную логику
+			// Передаем управление следующему обработчику в цепочке middleware
 			next.ServeHTTP(ww, r)
 		}
 

@@ -20,8 +20,10 @@ func main() {
 
 	// todo: init logger: slog
 	log := setupLogger(cfg.Env)
-	log.Info("start url-shortener", slog.String("env", cfg.Env))
-	log.Debug("debug messages are enabled")
+	log = log.With(slog.String("env", cfg.Env)) // к каждому сообщению будет добавляться поле с информацией о текущем окружении
+
+	log.Info("initializing server", slog.String("address", cfg.Address)) // Помимо сообщения выведем параметр с адресом
+	log.Debug("logger debug mode enabled")
 
 	// todo: init storage: sqlite / postgres
 	storage, err := sqlite.New(cfg.StoragePath)
@@ -31,15 +33,11 @@ func main() {
 
 	// todo: init router: chi, 'chi render'
 	router := chi.NewRouter()
-	// Добавляет request_id в каждый запрос, для трейсинга
-	router.Use(middleware.RequestID)
-	// Логирование всех запросов
-	router.Use(middleware.Logger)
+	router.Use(middleware.RequestID) // Добавляет request_id в каждый запрос, для трейсинга
+	router.Use(middleware.Logger)    // Логирование всех запросов
 	//router.Use(mwLogger.New(log))
-	// Если внутри сервера (обработчика запроса) произойдет паника, приложение не должно упасть
-	router.Use(middleware.Recoverer)
-	// Парсер URLов поступающих запросов
-	router.Use(middleware.URLFormat)
+	router.Use(middleware.Recoverer) // Если внутри сервера (обработчика запроса) произойдет паника, приложение не должно упасть
+	router.Use(middleware.URLFormat) // Парсер URLов поступающих запросов
 
 	router.Post("/", save.New(log, storage))
 
@@ -73,7 +71,7 @@ func main() {
 
 const (
 	envLocal = "local"
-	envDel   = "dev"
+	envDev   = "dev"
 	envProd  = "prod"
 )
 
@@ -82,9 +80,8 @@ func setupLogger(env string) *slog.Logger {
 
 	switch env {
 	case envLocal:
-		//log = setupPrettySlog()
 		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDel:
+	case envDev:
 		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	case envProd:
 		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))

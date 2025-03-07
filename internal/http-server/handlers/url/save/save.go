@@ -21,7 +21,7 @@ type Request struct {
 
 type Response struct {
 	resp.Response
-	Alias string `json:"alias,omitempty"`
+	Alias string `json:"alias"`
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.28.2 --name=URLSaver
