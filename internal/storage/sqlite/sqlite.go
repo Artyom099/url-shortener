@@ -92,5 +92,5 @@ func (s *Storage) GetURL(alias string) (string, error) {
 }
 
 // todo - написать 2 метода
-func (s *Storage) UpdateURL(alias string) (string, error) {}
-func (s *Storage) DeleteURL(alias string) (string, error) {}
+//func (s *Storage) UpdateURL(alias string) (string, error) {}
+//func (s *Storage) DeleteURL(alias string) (string, error) {}

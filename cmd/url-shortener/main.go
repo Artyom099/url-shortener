@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
+	"net/http"
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/http-server/handlers/url/redirect"
@@ -29,6 +30,7 @@ func main() {
 	storage, err := sqlite.New(cfg.StoragePath)
 	if err != nil {
 		log.Error("failed to initialize storage", sl.Err(err))
+		os.Exit(1)
 	}
 
 	// todo: init router: chi, 'chi render'
@@ -64,6 +66,19 @@ func main() {
 	router.Get("/{alias}", redirect.New(log, storage))
 
 	//-------------------------------
+
+	srv := &http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Error("failed to start server", sl.Err(err))
+	}
+	log.Info("shutting down server")
 
 	// todo: run server
 
