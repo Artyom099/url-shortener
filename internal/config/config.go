@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/ilyakaznacheev/cleanenv"
 	"log"
 	"os"
@@ -29,7 +30,7 @@ func MustLoad() *Config {
 	// Получаем путь до конфиг-файла из env-переменной CONFIG_PATH
 	//configPath := os.Getenv("CONFIG_PATH")
 
-	configPath := "./config/local.yml"
+	configPath := "./config/local.yaml"
 
 	if configPath == "" {
 		log.Fatal("CONFIG_PATH is not set")
@@ -47,6 +48,7 @@ func MustLoad() *Config {
 	if err != nil {
 		log.Fatalf("cannot reading config: %s", err)
 	}
+	fmt.Println(&cfg)
 
 	return &cfg
 }

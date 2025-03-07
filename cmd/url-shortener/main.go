@@ -27,7 +27,7 @@ func main() {
 	log.Debug("logger debug mode enabled")
 
 	// todo: init storage: sqlite / postgres
-	storage, err := sqlite.New(cfg.StoragePath)
+	storage, err := sqlite.New("./url-shortener.db") // ./storage/storage.db
 	if err != nil {
 		log.Error("failed to initialize storage", sl.Err(err))
 		os.Exit(1)
