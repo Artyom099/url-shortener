@@ -4,7 +4,7 @@
 
 ### 1. Как запустить проект:
 ```shell
-go run main.go
+go run ./cmd/url-shortener/main.go
 ```
 
 ### 2. Как запустить тесты?
